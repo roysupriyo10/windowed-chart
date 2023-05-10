@@ -21,17 +21,22 @@ function App() {
 
   const chartContainerRef = useRef(null)
 
+
+
   const [ timeFrame, setTimeFrame ] = useState('1m')
 
   useEffect(() => setTimeFrame(JSON.parse(localStorage.getItem('timeFrame')) ?? '1m'), [])
 
   useEffect(
     () => {
+      console.log(chartContainerRef.current.clientWidth)
+      console.log(chartContainerRef.current.clientHeight)
       const chartApi = createChart(
         chartContainerRef.current,
         {
           width: chartContainerRef.current.clientWidth,
-          height: 400,
+          height: chartContainerRef.current.clientHeight,
+          // height: 450,
           crosshair: {
             mode: CrosshairMode.Normal
           },
@@ -308,8 +313,9 @@ function App() {
       }
 
       const handleResize = () => {
-        chartApi.applyOptions({ width: chartContainerRef.current.clientWidth })
+        chartApi.applyOptions({ width: chartContainerRef.current.clientWidth, height: chartContainerRef.current.clientHeight })
         timer.style.left = `${chartContainerRef.current.clientWidth - 84}px`
+        console.log(chartContainerRef.current.clientHeight)
       }
 
       window.addEventListener('resize', handleResize)
@@ -348,10 +354,11 @@ function App() {
     handleTimeFrame
   }
 
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <div ref={chartContainerRef} />
+      <div ref={chartContainerRef} id='chart-container'></div>
       <TimeFrameToggler {...propsObject} />
     </ThemeProvider>
   )
