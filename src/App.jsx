@@ -16,6 +16,7 @@ theme = responsiveFontSizes(theme)
 import fapi from './urls'
 import convertToInternationalCurrencySystem from './utils/convertToInternationalCurrencySystem'
 import TimeFrameToggler from './timeframetoggler/TimeFrameToggler'
+import { KeyboardArrowRight } from '@mui/icons-material'
 
 function App() {
 
@@ -359,8 +360,35 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <div ref={chartContainerRef} id='chart-container'></div>
-      <TimeFrameToggler {...propsObject} />
+      <div className='grow'>
+        <TimeFrameToggler {...propsObject} />
+      </div>
     </ThemeProvider>
+
+    // <div
+    // className='grow'
+    // style={{top: `${growPosition - 17}px`, alignItems: 'center'}}
+    // >
+    // <span
+    //   className='grow-expander'
+    // >
+    //   <KeyboardArrowLeft />
+    // </span>
+    // &nbsp;
+    // <div
+    //   className='grow-content'
+    // >
+    //   <div>
+    //     {isEmpty(positionDetails) ? cutNumber(putForthMargin * entryPrice / leverage * 10, 2) : cutNumber(positionDetails.margin, 2)} <span className='symbol__base'>USDT</span>
+    //   </div>
+    //   <div>
+    //     ({percent}%)
+    //   </div>
+    //   <div>
+    //     {percentLev}%
+    //   </div>
+    // </div>
+    // </div>
   )
 }
 

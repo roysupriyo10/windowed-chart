@@ -19,8 +19,9 @@ const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
   },
   '& .MuiToggleButton-root': {
     textTransform: 'none',
-    paddingTop: 6,
-    paddingBottom: 6,
+    fontSize: '10px',
+    paddingTop: 2,
+    paddingBottom: 2,
   }
 }));
 

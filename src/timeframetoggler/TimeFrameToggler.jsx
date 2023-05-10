@@ -60,6 +60,7 @@ const TimeFrameToggler = ({ timeFrame, handleTimeFrame }) => {
         exclusive
         onChange={handleTimeFrame}
         size='small'
+        orientation='vertical'
       >
         {children}
       </CustomToggleButtonGroup>

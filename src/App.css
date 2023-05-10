@@ -1,3 +1,51 @@
 div#chart-container {
-  height: calc(100% - 43px);
+  height: 100%;
+}
+
+.grow {
+  display: flex;
+  align-items: center;
+
+  background-color: #202020;
+  color: lightgrey;
+  border: 1px solid rgb(211,211,211, 0.15);
+  position: absolute;
+  font-size: 14px;
+  z-index: 50;
+  bottom: 0px;
+  left: -5px;
+  border-radius: 8px 8px 8px 8px;
+  transition: opacity 0.1s;
+  /* background-color: white; */
+  height: 360px;
+  width: 45px;
+  padding-left: 2px;
+  opacity: 0.1;
+}
+
+.grow-expander {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.grow:hover {
+  opacity: 1;
+}
+
+.grow:hover .grow-expander {
+  display: none;
+  
+}
+
+
+.grow:hover .grow-content {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  width: 200px;
+}
+
+.symbol__base {
+  font-size: 12px;
 }
