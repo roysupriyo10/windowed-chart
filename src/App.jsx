@@ -5,9 +5,17 @@ import { createChart } from 'lightweight-charts'
 import { CrosshairMode } from 'lightweight-charts'
 import ReconnectingWebSocket from 'reconnecting-websocket'
 import { useState } from 'react'
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+
+import { responsiveFontSizes, CssBaseline } from '@mui/material'
+import { themeOptions } from './theme/Theme'
+
+let theme = createTheme(themeOptions);
+theme = responsiveFontSizes(theme)
 
 import fapi from './urls'
 import convertToInternationalCurrencySystem from './utils/convertToInternationalCurrencySystem'
+import TimeFrameToggler from './timeframetoggler/TimeFrameToggler'
 
 function App() {
 
@@ -255,7 +263,7 @@ function App() {
       const legend = document.createElement('div');
 
       // positioning the legend
-      legend.style = `position: absolute; color: #a6a6a6; font-weight: bold; left: 12px; top: 16px; z-index: 1; font-size: 15px; font-family: 'JetBrains Mono'; line-height: 25px;`
+      legend.style = `position: absolute; color: #a6a6a6; font-weight: bold; left: 12px; top: 12px; z-index: 1; font-size: 15px; font-family: 'Azeret Mono'; line-height: 25px;`
       chartContainerRef.current.appendChild(legend);
 
       // two divs to switch on and off alternatively for alternate user action (hovering over candles and when not hovering)
@@ -322,10 +330,26 @@ function App() {
     [timeFrame]
   )
 
+  // function to handle the time frame change caused by the toggle button group in the control panel
+  const handleTimeFrame = (e, value) => {
+    //detect if changed value is latter
+    if (value !== null) {
+      //set the newly received value
+      setTimeFrame(value);
+    };
+  }
+
+  const propsObject = {
+    timeFrame,
+    handleTimeFrame
+  }
+
   return (
-    <>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
       <div ref={chartContainerRef} />
-    </>
+      <TimeFrameToggler {...propsObject} />
+    </ThemeProvider>
   )
 }
 
