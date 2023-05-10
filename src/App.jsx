@@ -278,7 +278,7 @@ function App() {
       const legend = document.createElement('div');
 
       // positioning the legend
-      legend.style = `position: absolute; color: #a6a6a6; font-weight: bold; left: 12px; top: 12px; z-index: 1; font-size: 15px; font-family: 'Azeret Mono'; line-height: 25px;`
+      legend.style = `position: absolute; color: #a6a6a6; font-weight: bold; left: 12px; top: 12px; z-index: 1; font-size: 13px; font-family: 'Azeret Mono'; line-height: 25px;`
       chartContainerRef.current.appendChild(legend);
 
       // two divs to switch on and off alternatively for alternate user action (hovering over candles and when not hovering)
