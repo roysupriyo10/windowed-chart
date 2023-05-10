@@ -19,7 +19,7 @@ export const themeOptions = {
   },
   typography: {
     // fontFamily: 'IBM Plex Sans',
-    fontFamily: 'Source Sans Pro',
+    fontFamily: 'Azeret Mono',
     color: '#c0c0c0'
   },
   shape: {
