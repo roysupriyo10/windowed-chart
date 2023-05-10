@@ -176,8 +176,14 @@ function App() {
             '5m': 300,
             '15m': 60 * 15,
             '1h': 60 * 60,
+            '2h': 60 * 60 * 2,
             '4h': 60 * 60 * 4,
-            '1d': 60 * 60 * 24
+            '8h': 60 * 60 * 8,
+            '12h': 60 * 60 * 12,
+            '1d': 60 * 60 * 24,
+            '3d': 60 * 60 * 24 * 3,
+            '1w': 60 * 60 * 24 * 7,
+            '1M': 60 * 60 * 24 * 28
           }
           
 
@@ -187,8 +193,9 @@ function App() {
           // format the remaining seconds in the required format to display in the countdown timer div
           const dateObj = new Date(remainingSeconds * 1000)
           const minutes = dateObj.getUTCMinutes();
-          const seconds = dateObj.getSeconds()
-
+          const seconds = dateObj.getSeconds();
+          const hours = dateObj.getUTCHours();
+          // (hours ? hours.toString().padStart(2, '0') + ':' : '') + 
           const timeString = minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
           // setTimerObject(prev => {
           //   return {
