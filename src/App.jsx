@@ -23,6 +23,8 @@ function App() {
 
   const [ timeFrame, setTimeFrame ] = useState('1m')
 
+  useEffect(() => setTimeFrame(JSON.parse(localStorage.getItem('timeFrame')) ?? '1m'), [])
+
   useEffect(
     () => {
       const chartApi = createChart(
@@ -318,6 +320,8 @@ function App() {
         chartApi.subscribeCrosshairMove(handleCrosshairMove)
         chartApi.applyOptions({handleScroll: true, handleScale: true})
       }, 2000);
+
+      localStorage.setItem('timeFrame', JSON.stringify(timeFrame))
 
       return () => {
         legend.remove()
