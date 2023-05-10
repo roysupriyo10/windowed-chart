@@ -21,7 +21,7 @@ function App() {
         chartContainerRef.current,
         {
           width: chartContainerRef.current.clientWidth,
-          height: 450,
+          height: 400,
           crosshair: {
             mode: CrosshairMode.Normal
           },
@@ -209,8 +209,9 @@ function App() {
       timer.style = `
         all: unset;
         position: absolute;
-        left: ${chartContainerRef.current.clientWidth - 85}px;
+        left: ${chartContainerRef.current.clientWidth - 84}px;
         top: 45px;
+        text-align: center;
         z-index: 4;
         color: white;
         background-color: #00897b;
@@ -298,7 +299,7 @@ function App() {
 
       const handleResize = () => {
         chartApi.applyOptions({ width: chartContainerRef.current.clientWidth })
-        timer.style.left = `${chartContainerRef.current.clientWidth - 85}px`
+        timer.style.left = `${chartContainerRef.current.clientWidth - 84}px`
       }
 
       window.addEventListener('resize', handleResize)
