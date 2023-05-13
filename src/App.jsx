@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { createChart } from 'lightweight-charts'
 import { CrosshairMode } from 'lightweight-charts'
 import ReconnectingWebSocket from 'reconnecting-websocket'
+import axios from 'axios'
 import { useState } from 'react'
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
@@ -16,6 +17,23 @@ theme = responsiveFontSizes(theme)
 import fapi from './urls'
 import convertToInternationalCurrencySystem from './utils/convertToInternationalCurrencySystem'
 import TimeFrameToggler from './timeframetoggler/TimeFrameToggler'
+import { ColorType } from 'lightweight-charts'
+
+const timeFrameIdentifier = {
+  '1m': 60,
+  '3m': 60 * 3,
+  '5m': 300,
+  '15m': 60 * 15,
+  '1h': 60 * 60,
+  '2h': 60 * 60 * 2,
+  '4h': 60 * 60 * 4,
+  '8h': 60 * 60 * 8,
+  '12h': 60 * 60 * 12,
+  '1d': 60 * 60 * 24,
+  '3d': 60 * 60 * 24 * 3,
+  '1w': 60 * 60 * 24 * 7,
+  '1M': 60 * 60 * 24 * 28
+}
 
 function App() {
 
@@ -38,43 +56,58 @@ function App() {
           height: chartContainerRef.current.clientHeight,
           // height: 450,
           crosshair: {
-            mode: CrosshairMode.Normal
+            mode: CrosshairMode.Normal,
+            vertLine: {
+              color: '#9598A1'
+            },
+            horzLine: {
+              color: '#9598A1'
+            }
+            
           },
           layout: {
-            background: '#151515',
-            textColor: 'white',
+            
+            background: {type: ColorType.VerticalGradient, topColor: '#181C27', bottomColor: '#131722'},
+            // background: '#171B26',
+            textColor: '#B2B5BE',
             fontFamily: 'Azeret Mono',
           },
           grid: {
             vertLines: {
-              color: 'rgba(80, 80, 80, 0.5)',
+              color: '#242832',
             },
             horzLines: {
-              color: 'rgba(80, 80, 80, 0.5)',
+              color: '#242832',
             },
           },
           rightPriceScale: {
-            borderColor: 'rgba(80, 80, 80, 0.5)',
+            borderColor: '#242832',
+
           },
           //timescale properties that dictate that the seconds while hovering are visible
           timeScale: {
-            borderColor: 'rgba(80, 80, 80, 0.5)',
+            borderColor: '#242832',
             timeVisible: true,
             secondsVisible: false
           },
           handleScroll: false,
           handleScale: false,
+          
         }
       )
 
       const candleSeriesApi = chartApi.addCandlestickSeries(
         {
-          upColor: '#00897B',
-          downColor: '#FF5252',
-          borderDownColor: '#FF5252',
-          borderUpColor: '#00897B',
-          wickDownColor: '#FF5252',
-          wickUpColor: '#00897B',
+          upColor: '#089981',
+          downColor: '#F23645',
+          borderDownColor: '#F23645',
+          borderUpColor: '#089981',
+          wickDownColor: '#F23645',
+          wickUpColor: '#089981',
+          priceFormat: {
+            type: 'price',
+            precision: 1
+          }
         }
       )
 
@@ -97,8 +130,8 @@ function App() {
 
       candleSeriesApi.priceScale().applyOptions({
         scaleMargins: {
-          top: 0.15,
-          bottom: 0
+          top: 0.1,
+          bottom: 0.08
         }
       })
 
@@ -123,7 +156,7 @@ function App() {
         //fetching historical data to display in the chart
         const getCandleData = async () => {
           let data = []
-          for (let startTime = Date.now() - (86_400_000 * 3); startTime < Date.now(); startTime += 86_400_000) {
+          for (let startTime = Date.now() - (86_400_000 * (4500 / (86_400 / timeFrameIdentifier[timeFrame]))); startTime < Date.now(); startTime += 86_400_000) {
             const endTime = startTime + 86_399_999
             const currentData = await fetch(`${fapi.rest}fapi/v1/continuousKlines?pair=BTCUSDT&contractType=PERPETUAL&interval=${timeFrame}&limit=1440&startTime=${startTime}&endTime=${endTime}`).then(response => response.json())
             if (!Array.isArray(currentData)) continue
@@ -132,9 +165,10 @@ function App() {
           return data
         }
         // fetch(`${fapi.rest}fapi/v1/continuousKlines?pair=BTCUSDT&contractType=PERPETUAL&interval=${timeFrame}&limit=1500`)
-        getCandleData()
+        axios.request({method:'get',maxBodyLength:Infinity,params:{timeFrame,baseUrl:fapi.rest},url:'http://localhost:5000/getAllData',headers:{}})
         // .then(res => res.json())
-        .then(data => {
+        .then(response => {
+          const data = response.data
           //this is the candlestick array
           const candleFetchedData = data.map(d => ({
             time: ( d[0] + 19800000 ) / 1000,
@@ -147,7 +181,7 @@ function App() {
           const volumeFetchedData = data.map(d => ({
             time: ( d[0] + 19800000 ) / 1000,
             value: parseInt(d[5]),
-            color: parseFloat(d[4]) >= parseFloat(d[1]) ? '#00897B' : '#FF5252'
+            color: parseFloat(d[4]) >= parseFloat(d[1]) ? '#089981' : '#F23645'
           }))
           //setting the captured data in the chart series
           candleSeriesApi.setData(candleFetchedData)
@@ -158,17 +192,17 @@ function App() {
           // parsing the JSON string containing candlestick data to throw into the update function of the specific series of the chart
           const message = JSON.parse(event.data);
           const { t, o, h, l, c, v } = message.k;
-          const color = parseFloat(c) >= parseFloat(o) ? '#00897B' : '#FF5252'
+          const color = parseFloat(c) >= parseFloat(o) ? '#089981' : '#F23645'
           const change = parseFloat(c) >= parseFloat(o) ? `+${(parseFloat(c) - parseFloat(o)).toFixed(1)}` : `-${(parseFloat(o) - parseFloat(c)).toFixed(1)}`
           const percentChange = (((parseFloat(c) - parseFloat(o)) / parseFloat(o)) * 100) >= 0 ? `+${(((parseFloat(c) - parseFloat(o)) / parseFloat(o)) * 100).toFixed(2)}` : `${(((parseFloat(c) - parseFloat(o)) / parseFloat(o)) * 100).toFixed(2)}`
   
           // prerequisites to update legend
-          const ohlcLegend = `O<span style="color: ${color}">${parseFloat(o).toFixed(1)}</span> H<span style="color: ${color}">${parseFloat(h).toFixed(1)}</span> L<span style="color: ${color}">${parseFloat(l).toFixed(1)}</span> C<span style="color: ${color}">${parseFloat(c).toFixed(1)}</span> <span style="color: ${color}">${change}</span> <span style="color: ${color}">(${percentChange}%)</span>`
-          const volumeLegend = `<span style="color: ${color}">${convertToInternationalCurrencySystem(v)}</span>`
+          const ohlcLegend = `<div>O<span style="color: ${color}">${parseFloat(o).toFixed(1)}</span></div> <div>H<span style="color: ${color}">${parseFloat(h).toFixed(1)}</span></div> <div>L<span style="color: ${color}">${parseFloat(l).toFixed(1)}</span></div> <div>C<span style="color: ${color}">${parseFloat(c).toFixed(1)}</span></div> <span style="color: ${color}">${change}</span> <span style="color: ${color}">(${percentChange}%)</span>`
+          const volumeLegend = `<span style="font-weight: 400; color: ${color}">${convertToInternationalCurrencySystem(v)}</span>`
   
           // updating the legend that displays live candle data
           if (updateRow !== null) {
-            updateRow.innerHTML = `${symbolName}&nbsp;&nbsp;${ohlcLegend}<br>Vol · BTC&nbsp;&nbsp;${volumeLegend}`
+            updateRow.innerHTML = `<div style="display: flex; column-gap: 8px">${symbolName}&nbsp;&nbsp;<span style="display: flex; align-items: center; column-gap: 8px; font-weight: 400; font-size: 13px;padding-top: 1px; transform: scale(1,1.1)">${ohlcLegend}</span></div><span style="font-family: Open Sans">Vol · BTC</span>&nbsp;&nbsp;${volumeLegend}`
           }
   
           // this is to update the candleseries with the parsed data
@@ -187,21 +221,6 @@ function App() {
             color: color
           });
 
-          const timeFrameIdentifier = {
-            '1m': 60,
-            '3m': 60 * 3,
-            '5m': 300,
-            '15m': 60 * 15,
-            '1h': 60 * 60,
-            '2h': 60 * 60 * 2,
-            '4h': 60 * 60 * 4,
-            '8h': 60 * 60 * 8,
-            '12h': 60 * 60 * 12,
-            '1d': 60 * 60 * 24,
-            '3d': 60 * 60 * 24 * 3,
-            '1w': 60 * 60 * 24 * 7,
-            '1M': 60 * 60 * 24 * 28
-          }
           
 
           // fetch the remaining seconds to the close of the current candle
@@ -217,7 +236,7 @@ function App() {
           // setTimerObject(prev => {
           //   return {
           //   ...timerObject,
-          //   color: parseFloat(c) >= parseFloat(o) ? '#00897B' : '#FF5252',
+          //   color: parseFloat(c) >= parseFloat(o) ? '#089981' : '#F23645',
           //   time: timeString,
           //   position: candleSeries.priceToCoordinate(parseFloat(c))
           //   }
@@ -226,7 +245,7 @@ function App() {
           countDown.innerHTML = timeString
 
           timer.style.top = `${candleSeriesApi.priceToCoordinate(parseFloat(c)) + 6}px`
-          timer.style.backgroundColor = parseFloat(c) >= parseFloat(o) ? '#00897B' : '#FF5252'
+          timer.style.backgroundColor = parseFloat(c) >= parseFloat(o) ? '#089981' : '#F23645'
         }
       })
 
@@ -242,24 +261,24 @@ function App() {
       }
 
       // display the symbol name when no data is received
-      const symbolName = `Bitcoin / TetherUS PERPETUAL FUTURES · ${timeFrame} · BINANCE`
+      const symbolName = `<span style="font-family: Open Sans; font-size: 16px">Bitcoin / TetherUS PERPETUAL FUTURES · ${timeFrame} · BINANCE</span>`
 
       // create the div required to show the countdown timer
       const timer = document.createElement('div')
       timer.style = `
         all: unset;
         position: absolute;
-        left: ${chartContainerRef.current.clientWidth - 84}px;
+        left: ${chartContainerRef.current.clientWidth - 76}px;
         top: 45px;
         text-align: center;
         z-index: 4;
         color: white;
-        background-color: #00897b;
+        background-color: #089981;
         display: flex;
         justify-content: center;
         align-items: center;
         font-size: 12px;
-        width: 79px;
+        width: 71px;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -273,7 +292,7 @@ function App() {
       //   top: -45px;
       //   z-index: 4;
       //   color: white;
-      //   background-color: #00897b;
+      //   background-color: #089981;
       //   display: inline;
       //   font-size: 12px;
       //   width: 79px;
@@ -324,12 +343,12 @@ function App() {
 
           const percentChange = (((close - open) / open) * 100) >= 0 ? `+${(((close - open) / open) * 100).toFixed(2)}` : `${(((close - open) / open) * 100).toFixed(2)}`;
 
-          const ohlcLegend = `O<span style="color: ${color}">${open.toFixed(1)}</span> H<span style="color: ${color}">${high.toFixed(1)}</span> L<span style="color: ${color}">${low.toFixed(1)}</span> C<span style="color: ${color}">${close.toFixed(1)}</span> <span style="color: ${color}">${change}</span> <span style="color: ${color}">(${percentChange}%)</span>`;
+          const ohlcLegend = `<div>O<span style="color: ${color}">${open.toFixed(1)}</span></div> <div>H<span style="color: ${color}">${high.toFixed(1)}</span></div> <div>L<span style="color: ${color}">${low.toFixed(1)}</span></div> <div>C<span style="color: ${color}">${close.toFixed(1)}</span></div> <span style="color: ${color}">${change}</span> <span style="color: ${color}">(${percentChange}%)</span>`;
           
-          const volumeLegend = `<span style="color: ${color}">${convertToInternationalCurrencySystem(Number(value))}</span>`;
+          const volumeLegend = `<span style="font-weight: 400;color: ${color}">${convertToInternationalCurrencySystem(Number(value))}</span>`;
 
           // finally update the chart
-          hoverRow.innerHTML = `${symbolName}&nbsp;&nbsp;${ohlcLegend}<br>Vol · BTC&nbsp;&nbsp;${volumeLegend}`
+          hoverRow.innerHTML = `<div style="display: flex; column-gap: 8px">${symbolName}&nbsp;&nbsp;<span style="display: flex; align-items: center; column-gap: 8px; font-weight: 400; font-size: 13px;padding-top: 1px; transform: scale(1,1.1)">${ohlcLegend}</span></div><span style="font-family: Open Sans">Vol · BTC</span>&nbsp;&nbsp;${volumeLegend}`
         } else {
           // if the user is not viewing a specific candle, switch to the div displaying live data updated in the incomingData function of the websocket
           hoverRow.style.display = 'none'
@@ -339,7 +358,7 @@ function App() {
 
       const handleResize = () => {
         chartApi.applyOptions({ width: chartContainerRef.current.clientWidth, height: chartContainerRef.current.clientHeight })
-        timer.style.left = `${chartContainerRef.current.clientWidth - 84}px`
+        timer.style.left = `${chartContainerRef.current.clientWidth - 76}px`
         console.log(chartContainerRef.current.clientHeight)
       }
 
