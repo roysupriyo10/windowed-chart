@@ -121,8 +121,19 @@ function App() {
 
       dataSocket.addEventListener('open', () => {
         //fetching historical data to display in the chart
-        fetch(`${fapi.rest}fapi/v1/continuousKlines?pair=BTCUSDT&contractType=PERPETUAL&interval=${timeFrame}&limit=1500`)
-        .then(res => res.json())
+        const getCandleData = async () => {
+          let data = []
+          for (let startTime = Date.now() - (86_400_000 * 3); startTime < Date.now(); startTime += 86_400_000) {
+            const endTime = startTime + 86_399_999
+            const currentData = await fetch(`${fapi.rest}fapi/v1/continuousKlines?pair=BTCUSDT&contractType=PERPETUAL&interval=${timeFrame}&limit=1440&startTime=${startTime}&endTime=${endTime}`).then(response => response.json())
+            if (!Array.isArray(currentData)) continue
+            data = [...data,...currentData]
+          }
+          return data
+        }
+        // fetch(`${fapi.rest}fapi/v1/continuousKlines?pair=BTCUSDT&contractType=PERPETUAL&interval=${timeFrame}&limit=1500`)
+        getCandleData()
+        // .then(res => res.json())
         .then(data => {
           //this is the candlestick array
           const candleFetchedData = data.map(d => ({
