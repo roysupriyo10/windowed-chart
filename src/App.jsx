@@ -16,7 +16,6 @@ theme = responsiveFontSizes(theme)
 import fapi from './urls'
 import convertToInternationalCurrencySystem from './utils/convertToInternationalCurrencySystem'
 import TimeFrameToggler from './timeframetoggler/TimeFrameToggler'
-import { KeyboardArrowRight } from '@mui/icons-material'
 
 function App() {
 
@@ -89,10 +88,17 @@ function App() {
       });
 
       //adjusting the margin to ensure that the volume bars and candlesticks don't overlap each other
+      // candleSeriesApi.priceScale().applyOptions({
+      //   scaleMargins: {
+      //     top: 0.15,
+      //     bottom: 0.23
+      //   }
+      // })
+
       candleSeriesApi.priceScale().applyOptions({
         scaleMargins: {
           top: 0.15,
-          bottom: 0.23
+          bottom: 0
         }
       })
 
