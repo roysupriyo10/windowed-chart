@@ -67,8 +67,9 @@ function App() {
           },
           layout: {
             
-            background: {type: ColorType.VerticalGradient, topColor: '#181C27', bottomColor: '#131722'},
-            // background: '#171B26',
+            // background: {type: ColorType.VerticalGradient, topColor: '#181C27', bottomColor: '#131722'},
+            
+            background: '#171B26',
             textColor: '#B2B5BE',
             fontFamily: 'Azeret Mono',
           },
