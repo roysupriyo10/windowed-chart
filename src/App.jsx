@@ -11,6 +11,8 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { responsiveFontSizes, CssBaseline } from '@mui/material'
 import { themeOptions } from './theme/Theme'
 
+
+
 let theme = createTheme(themeOptions);
 theme = responsiveFontSizes(theme)
 
@@ -35,11 +37,39 @@ const timeFrameIdentifier = {
   '1M': 60 * 60 * 24 * 28
 }
 
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
+
+function CustomMonthLayout({ goToDate, setGoToDate }) {
+  return (
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <DateCalendar showDaysOutsideCurrentMonth fixedWeekNumber={6} defaultValue={Date.now()} value={goToDate} onChange={(newValue) => setGoToDate(newValue)} />
+    </LocalizationProvider>
+  );
+}
+
 function App() {
 
+  const [ calendarVisible, setCalendarVisible ] = useState(false)
+
+  const adapter = new AdapterDayjs()
   const chartContainerRef = useRef(null)
+  const firstDay = adapter.date(new Date())
+  const [ goToDate, setGoToDate ] = useState(firstDay)
 
 
+  useEffect(
+    () => {
+      const handleToggleCalenderKey = (e) => {
+        if (e.key === 'Q' && e.shiftKey) {
+          setCalendarVisible(prevVisibility => !prevVisibility)
+        }
+      }
+      window.addEventListener('keydown', handleToggleCalenderKey)
+      return () => window.removeEventListener('keydown', handleToggleCalenderKey)
+    }, []
+  )
 
   const [ timeFrame, setTimeFrame ] = useState('1m')
 
@@ -155,19 +185,26 @@ function App() {
 
       dataSocket.addEventListener('open', () => {
         //fetching historical data to display in the chart
-        const getCandleData = async () => {
+        const getCandleData = async ({ startTime = Date.now() - 90_000_000 * 3, endTime = Date.now() }) => {
           let data = []
-          for (let startTime = Date.now() - (86_400_000 * (4500 / (86_400 / timeFrameIdentifier[timeFrame]))); startTime < Date.now(); startTime += 86_400_000) {
-            const endTime = startTime + 86_399_999
-            const currentData = await fetch(`${fapi.rest}fapi/v1/continuousKlines?pair=BTCUSDT&contractType=PERPETUAL&interval=${timeFrame}&limit=1440&startTime=${startTime}&endTime=${endTime}`).then(response => response.json())
+          if (endTime > Date.now()) {
+            let startTime = Date.now() - (90_000_000 * 3 * (timeFrameIdentifier[timeFrame] / 60))
+          }
+          // 1683225000000
+          for (let startTiming = startTime
+            // Date.now() - (86_400_000 * (4500 / (86_400 / timeFrameIdentifier[timeFrame])))
+            ; startTiming < endTime; startTiming += 90_000_000) {
+            const endTime = startTiming + 89_999_999
+            const currentData = await fetch(`${fapi.rest}fapi/v1/continuousKlines?pair=BTCUSDT&contractType=PERPETUAL&interval=${timeFrame}&limit=1440&startTiming=${startTiming}&endTime=${endTime}`).then(response => response.json())
             if (!Array.isArray(currentData)) continue
             data = [...data,...currentData]
           }
-          return data
+          return {data}
         }
         // fetch(`${fapi.rest}fapi/v1/continuousKlines?pair=BTCUSDT&contractType=PERPETUAL&interval=${timeFrame}&limit=1500`)
-        axios.request({method:'get',maxBodyLength:Infinity,params:{timeFrame,baseUrl:fapi.rest},url:'http://localhost:8080/getAllData',headers:{}})
+        // axios.request({method:'get',maxBodyLength:Infinity,params:{timeFrame,baseUrl:fapi.rest},url:'http://localhost:8080/getAllData',headers:{}})
         // .then(res => res.json())
+        getCandleData({endTime: goToDate.toDate().getTime() - (goToDate.toDate().getTime() % 86_400_000), startTime: goToDate.toDate().getTime() - (goToDate.toDate().getTime() % 86_400_000) - (90_000_000 * 3)})
         .then(response => {
           const data = response.data
           //this is the candlestick array
@@ -396,15 +433,34 @@ function App() {
 
   const propsObject = {
     timeFrame,
-    handleTimeFrame
+    handleTimeFrame,
+    goToDate,
+    setGoToDate
   }
-
 
   return (
     <ThemeProvider theme={theme}>
+      {calendarVisible ? (<div
+        style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          backgroundColor: '#151515',
+          opacity: '0.7',
+          borderRadius: '25px',
+          zIndex: '10',
+          transform: 'translate(-50%, -50%)'
+        }}
+      >
+        <CustomMonthLayout {...propsObject} />
+      </div>) : ''}
       <CssBaseline />
-      <div ref={chartContainerRef} id='chart-container'></div>
-      <div className='grow'>
+      {/* <div
+        style={{zIndex: '5'}}
+      > */}
+      <div ref={chartContainerRef} className={ calendarVisible ? 'blurred__background' : '' }  id='chart-container'></div>
+      {/* </div> */}
+      <div className={`grow ${calendarVisible ? 'timeframe__hide' : ''}`}>
         <TimeFrameToggler {...propsObject} />
       </div>
     </ThemeProvider>

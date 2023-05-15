@@ -11,7 +11,7 @@ div#chart-container {
   border: 1px solid rgb(211,211,211, 0.15);
   position: absolute;
   font-size: 14px;
-  z-index: 50;
+  z-index: 2;
   bottom: 0px;
   left: -5px;
   border-radius: 8px 8px 8px 8px;
@@ -38,6 +38,9 @@ div#chart-container {
   
 }
 
+.timeframe__hide {
+  display: none;
+}
 
 .grow:hover .grow-content {
   display: flex;
@@ -48,4 +51,10 @@ div#chart-container {
 
 .symbol__base {
   font-size: 12px;
+}
+
+body .blurred__background {
+  -webkit-filter: blur(15px);
+  filter: blur(15px);
+  z-index: 10;
 }
