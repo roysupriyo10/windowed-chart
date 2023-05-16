@@ -202,9 +202,10 @@ function App() {
           return {data}
         }
         // fetch(`${fapi.rest}fapi/v1/continuousKlines?pair=BTCUSDT&contractType=PERPETUAL&interval=${timeFrame}&limit=1500`)
-        // axios.request({method:'get',maxBodyLength:Infinity,params:{timeFrame,baseUrl:fapi.rest},url:'http://localhost:8080/getAllData',headers:{}})
+        axios.request({method:'get',maxBodyLength:Infinity,params:{timeFrame,baseUrl:fapi.rest},url:'http://localhost:8080/getAllData',headers:{}})
         // .then(res => res.json())
-        getCandleData({endTime: goToDate.toDate().getTime() - (goToDate.toDate().getTime() % 86_400_000), startTime: goToDate.toDate().getTime() - (goToDate.toDate().getTime() % 86_400_000) - (90_000_000 * 3)})
+        // getCandleData({endTime: goToDate.toDate().getTime() - (goToDate.toDate().getTime() % 86_400_000), startTime: goToDate.toDate().getTime() - (goToDate.toDate().getTime() % 86_400_000) - (90_000_000 * 3)})
+
         .then(response => {
           const data = response.data
           //this is the candlestick array
