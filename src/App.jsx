@@ -220,7 +220,7 @@ function App() {
           const volumeFetchedData = data.map(d => ({
             time: ( d[0] + 19800000 ) / 1000,
             value: parseInt(d[5]),
-            color: parseFloat(d[4]) >= parseFloat(d[1]) ? '#089981' : '#F23645'
+            color: parseFloat(d[4]) >= parseFloat(d[1]) ? 'rgba(8, 153, 129, 0.5)' : 'rgba(242, 54, 69, 0.5)'
           }))
           //setting the captured data in the chart series
           candleSeriesApi.setData(candleFetchedData)
@@ -257,7 +257,7 @@ function App() {
           volumeSeriesApi.update({
             time: ( t + 19800000 ) / 1000,
             value: parseInt(v),
-            color: color
+            color: color === '#089981' ? 'rgba(8, 153, 129, 0.5)' : 'rgba(242, 54, 69, 0.5)'
           });
 
           
@@ -378,13 +378,15 @@ function App() {
           const { open, high, low, close } = param.seriesData.get(candleSeriesApi);
           const { value, color } = param.seriesData.get(volumeSeriesApi);
 
+          const rgbaColor = color === 'rgba(8, 153, 129, 0.5)' ? '#089981' : '#f23645'
+
           const change = close >= open ? `+${(close - open).toFixed(1)}` : `-${(open - close).toFixed(1)}`;
 
           const percentChange = (((close - open) / open) * 100) >= 0 ? `+${(((close - open) / open) * 100).toFixed(2)}` : `${(((close - open) / open) * 100).toFixed(2)}`;
 
-          const ohlcLegend = `<div>O<span style="color: ${color}">${open.toFixed(1)}</span></div> <div>H<span style="color: ${color}">${high.toFixed(1)}</span></div> <div>L<span style="color: ${color}">${low.toFixed(1)}</span></div> <div>C<span style="color: ${color}">${close.toFixed(1)}</span></div> <span style="color: ${color}">${change}</span> <span style="color: ${color}">(${percentChange}%)</span>`;
+          const ohlcLegend = `<div>O<span style="color: ${rgbaColor}">${open.toFixed(1)}</span></div> <div>H<span style="color: ${rgbaColor}">${high.toFixed(1)}</span></div> <div>L<span style="color: ${rgbaColor}">${low.toFixed(1)}</span></div> <div>C<span style="color: ${rgbaColor}">${close.toFixed(1)}</span></div> <span style="color: ${rgbaColor}">${change}</span> <span style="color: ${rgbaColor}">(${percentChange}%)</span>`;
           
-          const volumeLegend = `<span style="font-weight: 400;color: ${color}">${convertToInternationalCurrencySystem(Number(value))}</span>`;
+          const volumeLegend = `<span style="font-weight: 400;color: ${rgbaColor}">${convertToInternationalCurrencySystem(Number(value))}</span>`;
 
           // finally update the chart
           hoverRow.innerHTML = `<div style="display: flex; column-gap: 8px">${symbolName}&nbsp;&nbsp;<span style="display: flex; align-items: center; column-gap: 8px; font-weight: 400; font-size: 13px;padding-top: 1px; transform: scale(1,1.1)">${ohlcLegend}</span></div><span style="font-family: Open Sans">Vol · BTC</span>&nbsp;&nbsp;${volumeLegend}`
