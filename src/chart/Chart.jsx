@@ -9,6 +9,7 @@ import { useRef, useEffect } from 'react'
 
 import convertToInternationalCurrencySystem from '../../../utils/convertToInternationalCurrencySystem'
 import isEmpty from '../../../utils/isEmpty'
+import { timeFrameIdentifier } from '../utils/timeFrameIdenitifier'
 
 const Chart = React.forwardRef((
   {
@@ -149,8 +150,20 @@ const Chart = React.forwardRef((
 
       marketDataSocket.addEventListener('open', () => {
         //fetching historical data to display in the chart
-        fetch(`${fapi.rest}fapi/v1/continuousKlines?pair=BTCUSDT&contractType=PERPETUAL&interval=${timeFrame}&limit=1500`)
-        .then(res => res.json())
+        const getCandles = async () => {
+          for (let startTime = Date.now() - ((90_000_000 * 3) * (timeFrameIdentifier[timeFrame] / 60)); startTime < Date.now(); startTime += 90_000_000 * (timeFrameIdentifier[timeFrame] / 60)) {
+            // console.log(new Date(startTime))
+            const endTime = startTime + 90_000_000 * (timeFrameIdentifier[timeFrame] / 60) - 1
+            const currentData = await fetch(`${baseUrl}fapi/v1/continuousKlines?pair=BTCUSDT&contractType=PERPETUAL&interval=${timeFrame}&limit=1500&startTime=${startTime}&endTime=${endTime}`).then(response => response.json())
+            // console.log(currentData)
+            if (!Array.isArray(currentData)) continue
+            data = [...data, ...currentData]
+          }
+          return data
+        }
+        // fetch(`${fapi.rest}fapi/v1/continuousKlines?pair=BTCUSDT&contractType=PERPETUAL&interval=${timeFrame}&limit=1500`)
+        // .then(res => res.json())
+        getCandles()
         .then(data => {
           //this is the candlestick array
           const candleFetchedData = data.map(d => ({

@@ -202,12 +202,25 @@ function App() {
           return {data}
         }
         // fetch(`${fapi.rest}fapi/v1/continuousKlines?pair=BTCUSDT&contractType=PERPETUAL&interval=${timeFrame}&limit=1500`)
-        axios.request({method:'get',maxBodyLength:Infinity,params:{timeFrame,baseUrl:fapi.rest},url:'http://localhost:8080/getAllData',headers:{}})
+        // axios.request({method:'get',maxBodyLength:Infinity,params:{timeFrame,baseUrl:fapi.rest},url:'http://localhost:8080/getAllData',headers:{}})
+        const getCandles = async () => {
+          let data = []
+          for (let startTime = 1649183400000 - ((90_000_000 * 15) * (timeFrameIdentifier[timeFrame] / 60)); startTime < 1649183400000; startTime += 90_000_000 * (timeFrameIdentifier[timeFrame] / 60)) {
+            // console.log(new Date(startTime))
+            const endTime = startTime + 90_000_000 * (timeFrameIdentifier[timeFrame] / 60) - 1
+            const currentData = await fetch(`${fapi.rest}fapi/v1/continuousKlines?pair=BTCUSDT&contractType=PERPETUAL&interval=${timeFrame}&limit=1500&startTime=${startTime}&endTime=${endTime}`).then(response => response.json())
+            // console.log(currentData)
+            if (!Array.isArray(currentData)) continue
+            data = [...data, ...currentData]
+          }
+          return data
+        }
         // .then(res => res.json())
         // getCandleData({endTime: goToDate.toDate().getTime() - (goToDate.toDate().getTime() % 86_400_000), startTime: goToDate.toDate().getTime() - (goToDate.toDate().getTime() % 86_400_000) - (90_000_000 * 3)})
 
+        getCandles()
         .then(response => {
-          const data = response.data
+          const data = response
           //this is the candlestick array
           const candleFetchedData = data.map(d => ({
             time: ( d[0] + 19800000 ) / 1000,
@@ -244,21 +257,21 @@ function App() {
             updateRow.innerHTML = `<div style="display: flex; column-gap: 8px">${symbolName}&nbsp;&nbsp;<span style="display: flex; align-items: center; column-gap: 8px; font-weight: 400; font-size: 13px;padding-top: 1px; transform: scale(1,1.1)">${ohlcLegend}</span></div><span style="font-family: Open Sans">Vol · BTC</span>&nbsp;&nbsp;${volumeLegend}`
           }
   
-          // this is to update the candleseries with the parsed data
-          candleSeriesApi.update({
-            time: ( t + 19800000 ) / 1000,
-            open: parseFloat(o),
-            high: parseFloat(h),
-            low: parseFloat(l),
-            close: parseFloat(c),
-          });
+          // // this is to update the candleseries with the parsed data
+          // candleSeriesApi.update({
+          //   time: ( t + 19800000 ) / 1000,
+          //   open: parseFloat(o),
+          //   high: parseFloat(h),
+          //   low: parseFloat(l),
+          //   close: parseFloat(c),
+          // });
   
-          // this is to update the volumeseries with the parsed data
-          volumeSeriesApi.update({
-            time: ( t + 19800000 ) / 1000,
-            value: parseInt(v),
-            color: color === '#089981' ? 'rgba(8, 153, 129, 0.5)' : 'rgba(242, 54, 69, 0.5)'
-          });
+          // // this is to update the volumeseries with the parsed data
+          // volumeSeriesApi.update({
+          //   time: ( t + 19800000 ) / 1000,
+          //   value: parseInt(v),
+          //   color: color === '#089981' ? 'rgba(8, 153, 129, 0.5)' : 'rgba(242, 54, 69, 0.5)'
+          // });
 
           
 
