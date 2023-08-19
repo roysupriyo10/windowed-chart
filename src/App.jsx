@@ -10,6 +10,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 import { responsiveFontSizes, CssBaseline } from '@mui/material'
 import { themeOptions } from './theme/Theme'
+import { timeFormatterChart } from './utils/timeFormatterChart'
 
 
 
@@ -119,10 +120,14 @@ function App() {
           timeScale: {
             borderColor: '#242832',
             timeVisible: true,
-            secondsVisible: false
+            secondsVisible: false,
+            rightBarStaysOnScroll: true
           },
           handleScroll: false,
           handleScale: false,
+          localization: {
+            timeFormatter: timeFormatterChart
+          }
           
         }
       )

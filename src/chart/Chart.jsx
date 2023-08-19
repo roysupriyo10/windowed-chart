@@ -47,9 +47,11 @@ const Chart = React.forwardRef((
         scaleHandler()
       }, 2000);
     },
-    [ timeFrame ]
+    [ timeFrame, scaleHandler ]
+
   )
 
+  console.log('hello')
   // this is the main useeffect function that renders or mounts the chart displayed in the screen
   useEffect(
     () => {      
@@ -84,7 +86,10 @@ const Chart = React.forwardRef((
           timeScale: {
             borderColor: 'rgba(80, 80, 80, 0.5)',
             timeVisible: true,
-            secondsVisible: false
+            secondsVisible: false,
+            fixRightEdge: true,
+            rightBarStaysOnScroll: true,
+            visible: true
           },
           handleScroll: false,
           handleScale: false,
