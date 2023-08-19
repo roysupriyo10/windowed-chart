@@ -118,6 +118,7 @@ function App() {
           },
           //timescale properties that dictate that the seconds while hovering are visible
           timeScale: {
+            rightOffset: 8,
             borderColor: '#242832',
             timeVisible: true,
             secondsVisible: false,
